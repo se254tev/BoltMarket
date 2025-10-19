@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs20"
+  },
+  "hosting": {
+    "source": ".",
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }
+}

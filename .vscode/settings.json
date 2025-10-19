@@ -1,0 +1,16 @@
+{
+  "files.exclude": {
+    "**/.next": true
+  },
+  "search.exclude": {
+    "**/.next": true
+  },
+  "files.watcherExclude": {
+    "**/.next/**": true
+  }
+  ,
+  "files.associations": {
+    "**/.next/**": "plaintext",
+    "**/.next/*": "plaintext"
+  }
+}
