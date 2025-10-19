@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { supabaseServer } from '@/lib/supabase-server';
 // Note: This API route expects the user to be authenticated client-side and to
 // include a Supabase auth cookie (or pass the access token). If your project
 // uses a different server-side auth pattern, adapt accordingly.
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       free_with_escrow: !!freeWithEscrow,
     };
 
-    const { data, error } = await supabase.from('delivery_requests').insert(insert).select().maybeSingle();
+    const { data, error } = await supabaseServer.from('delivery_requests').insert(insert).select().maybeSingle();
     if (error) {
       // Log full DB error on the server for diagnostics, but return a generic message to the client
       console.error('Delivery insert error', error);

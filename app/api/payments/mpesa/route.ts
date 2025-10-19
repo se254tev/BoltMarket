@@ -1,16 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { supabaseServer } from '@/lib/supabase-server';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const headers = Object.fromEntries(request.headers.entries());
 
-    await supabase.from('mpesa_callbacks').insert({
+    await supabaseServer.from('mpesa_callbacks').insert({
       payload: body,
       headers,
       processed: false,
@@ -23,14 +19,14 @@ export async function POST(request: NextRequest) {
     )?.Value;
 
     if (resultCode === 0 && mpesaReceiptNumber) {
-      const { data: payment } = await supabase
+      const { data: payment } = await supabaseServer
         .from('payments')
         .select('*')
         .eq('mpesa_checkout_request_id', checkoutRequestID)
         .maybeSingle();
 
       if (payment) {
-        await supabase
+        await supabaseServer
           .from('payments')
           .update({
             status: 'success',
@@ -39,14 +35,14 @@ export async function POST(request: NextRequest) {
           .eq('id', payment.id);
 
         if (payment.metadata?.type === 'escrow') {
-          const { data: escrow } = await supabase
+          const { data: escrow } = await supabaseServer
             .from('escrow_transactions')
             .select('*')
             .eq('payment_ref', payment.id)
             .maybeSingle();
 
           if (escrow) {
-            await supabase
+            await supabaseServer
               .from('escrow_transactions')
               .update({ status: 'funds_held' })
               .eq('id', escrow.id);
@@ -54,7 +50,7 @@ export async function POST(request: NextRequest) {
         } else if (payment.metadata?.type === 'subscription') {
           const subscriptionId = payment.metadata.subscription_id;
           if (subscriptionId) {
-            await supabase
+            await supabaseServer
               .from('seller_subscriptions')
               .update({
                 active: true,
@@ -64,19 +60,19 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        await supabase
+        await supabaseServer
           .from('mpesa_callbacks')
           .update({ processed: true, processed_at: new Date().toISOString() })
           .eq('payload->Body->stkCallback->CheckoutRequestID', checkoutRequestID);
       }
     } else {
       if (checkoutRequestID) {
-        await supabase
+        await supabaseServer
           .from('payments')
           .update({ status: 'failed' })
           .eq('mpesa_checkout_request_id', checkoutRequestID);
 
-        await supabase
+        await supabaseServer
           .from('mpesa_callbacks')
           .update({ processed: true, processed_at: new Date().toISOString() })
           .eq('payload->Body->stkCallback->CheckoutRequestID', checkoutRequestID);
@@ -111,7 +107,7 @@ export async function GET(request: NextRequest) {
 
     const checkoutRequestID = `CHK${Date.now()}${Math.random().toString(36).substring(2, 9)}`;
 
-    const { data: payment } = await supabase
+    const { data: payment } = await supabaseServer
       .from('payments')
       .insert({
         user_id: userId,

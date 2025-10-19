@@ -16,7 +16,7 @@ import minimist from 'minimist';
 
 const argv = minimist(process.argv.slice(2));
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error(chalk.red('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment variables'));
