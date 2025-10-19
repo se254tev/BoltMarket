@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type Listing, type Category } from '@/lib/supabase';
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import {
   Card,
   CardHeader,
@@ -44,7 +45,7 @@ export default function BuyerDashboard() {
 
     const channel = supabase
       .channel('listings-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'listings' }, (payload) => {
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'listings' }, (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
         // For simplicity, we just refetch on changes. A more optimized approach would be to merge the new data.
         if (payload.eventType === 'INSERT') {
           toast.success('New listing added!');

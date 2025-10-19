@@ -1,6 +1,6 @@
+
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-
 // Note: This API route expects the user to be authenticated client-side and to
 // include a Supabase auth cookie (or pass the access token). If your project
 // uses a different server-side auth pattern, adapt accordingly.
